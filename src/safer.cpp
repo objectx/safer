@@ -11,16 +11,6 @@
 #include <algorithm>
 #include "safer.hpp"
 
-#define USE_WATCH       0
-
-#if (! defined (NDEBUG)) && (defined (USE_WATCH) && USE_WATCH != 0)
-    #include <iostream>
-    #include <iomanip>
-    #define     WATCH(X_)       (std::cerr << X_)
-#else
-    #define     WATCH(X_)       ((void)0)
-#endif
-
 #define NUM_ELEMENTS(X_)        (sizeof (X_) / sizeof (*(X_)))
 
 ////////////////////////////////////////////////////////////////////////

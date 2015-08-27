@@ -21,9 +21,9 @@ namespace Safer {
 
     typedef uint8_t     block_t [BLOCK_LEN] ;
 
-    /// <summary>
-    /// Holds pre-computed values.
-    /// </summary>
+    /**
+     * Holds pre-computed values.
+     */
     class Table {
     private:
         uint8_t log_ [256] ;
@@ -38,43 +38,48 @@ namespace Safer {
         }
     } ;
 
-    /// <summary>
-    /// Holds expanded key.
-    /// </summary>
+    /**
+     * Holds expanded key.
+     */
     class Key {
     private:
         size_t  nRounds_ ;
         uint8_t values_ [KEY_LEN] ;
     public:
-        /// <summary>
-        /// Construct expanded key from <paramref name="key"/> [0..<paramref name="key_size"/> - 1].
-        /// </summary>
-        /// <param name="tab">Pre-computed table</param>
-        /// <param name="key">Original key</param>
-        /// <param name="key_size">Key length</param>
-        /// <param name="nRounds"># of rounds</param>
+        /**
+         * Construct expanded key from KEY [0..KEY_SIZE - 1].
+         *
+         * @param tab Pre-computed table
+         * @param key Original key
+         * @param key_size Key length
+         * @nRounds # of rounds
+         */
         Key (const Table &tab, const void *key, size_t key_size, size_t nRounds) ;
-        /// <summary>
-        /// Construct expanded key from <paramref name="key"/> [0..<paramref name="key_size"/> - 1] (w/ default # of rounds).
-        /// </summary>
-        /// <param name="tab">Pre-computed table</param>
-        /// <param name="key">Original key</param>
-        /// <param name="key_size">Key length</param>
+        /**
+         * Construct expanded key from KEY [0..KEY_SIZE - 1].
+         *
+         * @param tab Pre-computed table
+         * @param key Original key
+         * @param key_size Key length
+         */
         Key (const Table &tab, const void *key, size_t key_size) ;
-        /// <summary>
-        /// The copy ctor.
-        /// </summary>
-        /// <param name="src"></param>
+        /**
+         * The copy ctor.
+         *
+         * @param src
+         */
         Key (const Key &src) ;
-
-        /// <summary>
-        /// The assignment operator.
-        /// </summary>
+        /**
+         * The Assignment Operator.
+         *
+         * @Param Src
+         */
         Key &   Assign (const Key &src) ;
-
-        /// <summary>
-        /// The assignment operator.
-        /// </summary>
+        /**
+         * The Assignment Operator.
+         *
+         * @Param Src
+         */
         Key &   operator = (const Key &src) {
             return Assign (src) ;
         }
@@ -94,22 +99,24 @@ namespace Safer {
         void    Initialize (const Table &tab, const block_t &key1, const block_t &key2) ;
     } ;
 
-    /// <summary>
-    /// The encryptor (output == input was allowed).
-    /// </summary>
-    /// <param name="output">encrypted message</param>
-    /// <param name="input">plain text</param>
-    /// <param name="tab">pre-computed values for encryption</param>
-    /// <param name="key">expanded key</param>
+    /**
+     * The encryptor (output == input was allowed).
+     *
+     * @param output encrypted message
+     * @param input plain text
+     * @param tab pre-computed values for encryption
+     * @param key expanded key
+     */
     extern void EncryptBlock (block_t &output, const block_t &input, const Table &tab, const Key &key) ;
 
-    /// <summary>
-    /// The decryptor (output == input was allowed).
-    /// </summary>
-    /// <param name="output">plain text</param>
-    /// <param name="input">encrypted message</param>
-    /// <param name="tab">pre-computed values for encryption</param>
-    /// <param name="key">expanded key</param>
+    /**
+     * The decryptor (output == input was allowed).
+     *
+     * @param output encrypted message
+     * @param input plain text
+     * @param tab pre-computed values for encryption
+     * @param key expanded key
+     */
     extern void DecryptBlock (block_t &output, const block_t &input, const Table &tab, const Key &key) ;
 
 }   /* end of namespace Safer */
