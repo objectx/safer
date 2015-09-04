@@ -1,7 +1,7 @@
 /*
  * safer.h: definitions for block cipher algorithm SAFER (Secure And Fast Encryption Routine).
  *
- * Author(s): objectx
+ * Copyright (c) 2015 Masashi Fujita
  *
  */
 /* NOTE: Only SAFER-SK64 and SAFER-SK128 was implemented... */
@@ -12,12 +12,16 @@
 #include <cstddef>
 #include <cassert>
 #include <cstdint>
+#include <array>
 
 namespace Safer {
     size_t      const MAX_NUM_ROUNDS = 13 ;
     size_t      const BLOCK_LEN = 8 ;
 
     size_t      const KEY_LEN = BLOCK_LEN * (1 + 2 * MAX_NUM_ROUNDS) ;
+
+    size_t      const SK64_DEFAULT_NUM_ROUNDS  = 8 ;
+    size_t      const SK128_DEFAULT_NUM_ROUNDS = 10 ;
 
     typedef uint8_t     block_t [BLOCK_LEN] ;
 
@@ -26,15 +30,15 @@ namespace Safer {
      */
     class Table {
     private:
-        uint8_t log_ [256] ;
-        uint8_t exp_ [256] ;
+        std::array<uint8_t, 256>    log_ ;
+        std::array<uint8_t, 256>    exp_ ;
     public:
         Table () ;
-        uint8_t   Exp (size_t idx) const {
-            return exp_ [idx & 0xFFu] ;
+        decltype (log_) const & getLogTable () const {
+            return log_ ;
         }
-        uint8_t   Log (size_t idx) const {
-            return log_ [idx & 0xFFu] ;
+        decltype (exp_) const & getExpTable () const {
+            return exp_ ;
         }
     } ;
 
@@ -62,7 +66,14 @@ namespace Safer {
          * @param key Original key
          * @param key_size Key length
          */
-        Key (const Table &tab, const void *key, size_t key_size) ;
+        Key (const Table &tab, const void *key, size_t key_size)
+            : Key (tab, key, key_size,
+                   (key_size <= sizeof (block_t)
+                        ? SK64_DEFAULT_NUM_ROUNDS
+                        : SK128_DEFAULT_NUM_ROUNDS)) {
+            /* NO-OP */
+        }
+
         /**
          * The copy ctor.
          *
@@ -125,4 +136,3 @@ namespace Safer {
 /*
  * [END of FILE]
  */
-

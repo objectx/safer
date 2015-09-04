@@ -2,7 +2,7 @@
 /*
  * safer.cpp:
  *
- * AUTHOR(S): objectx
+ * Copyright (c) 2015 Masashi Fujita
  *
  */
 
@@ -16,8 +16,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 namespace Safer {
-    size_t      const SK64_DEFAULT_NUM_ROUNDS  = 8 ;
-    size_t      const SK128_DEFAULT_NUM_ROUNDS = 10 ;
 
     static inline uint8_t       rotl (uint8_t val, size_t count) {
         return static_cast<uint8_t>((val << count) | (val >> (8 - count))) ;
@@ -43,23 +41,6 @@ namespace Safer {
         y = y - x ;
     }
 
-    Table::Table () {
-        size_t  E = 1 ;
-        std::memset (exp_, 0, sizeof (exp_)) ;
-        std::memset (log_, 0, sizeof (log_)) ;
-
-        for (size_t i = 0 ; i < NUM_ELEMENTS (exp_) ; ++i) {
-            uint8_t     tmp = static_cast<uint8_t> (E) ;
-            exp_ [i] = tmp ;
-            log_ [tmp] = static_cast<uint8_t> (i) ;
-            E = (45 * E) % 257 ;
-        }
-    }
-
-    static inline size_t        check_rounds (size_t n) {
-        return MAX_NUM_ROUNDS < n ? MAX_NUM_ROUNDS : n ;
-    }
-
     static void BuildKeyBlock (block_t result [2], const void *key, size_t key_size) {
         std::memset (result, 0, 2 * sizeof (block_t)) ;
 
@@ -75,19 +56,8 @@ namespace Safer {
         }
     }
 
-    Key::Key (const Table &tab, const void *key, size_t key_size, size_t nRounds) : nRounds_ (check_rounds (nRounds)) {
-        block_t K [2] ;
-        BuildKeyBlock (K, key, key_size) ;
-        Initialize (tab, K [0], K [1]) ;
-    }
-
-    Key::Key (const Table &tab, const void *key, size_t key_size) {
-        if (key_size <= sizeof (block_t)) {
-            nRounds_ = SK64_DEFAULT_NUM_ROUNDS ;
-        }
-        else {
-            nRounds_ = SK128_DEFAULT_NUM_ROUNDS ;
-        }
+    Key::Key (const Table &tab, const void *key, size_t key_size, size_t nRounds)
+            : nRounds_ (std::min<size_t> (nRounds, MAX_NUM_ROUNDS)) {
         block_t K [2] ;
         BuildKeyBlock (K, key, key_size) ;
         Initialize (tab, K [0], K [1]) ;
@@ -111,6 +81,8 @@ namespace Safer {
         std::memset (ka, 0, sizeof (ka)) ;
         std::memset (kb, 0, sizeof (kb)) ;
 
+        auto exptab = tab.getExpTable () ;
+
         size_t    idx = 0 ;
         {
             size_t  i ;
@@ -133,10 +105,10 @@ namespace Safer {
                     kb [j] = rotl (kb [j], 6) ;
                 }
                 for (j = 0 ; j < BLOCK_LEN ; ++j) {
-                    values_ [idx++] = (ka [(j + 2 * i - 1) % (BLOCK_LEN + 1)] + tab.Exp (tab.Exp (18 * i + j +  1))) ;
+                    values_ [idx++] = ka [(j + 2 * i - 1) % (BLOCK_LEN + 1)] + exptab [exptab [(18 * i + j +  1) & 0xFFu]] ;
                 }
                 for (j = 0 ; j < BLOCK_LEN ; ++j) {
-                    values_ [idx++] = (kb [(j + 2 * i - 0) % (BLOCK_LEN + 1)] + tab.Exp (tab.Exp (18 * i + j + 10))) ;
+                    values_ [idx++] = kb [(j + 2 * i - 0) % (BLOCK_LEN + 1)] + exptab [exptab [(18 * i + j + 10) & 0xFFu]] ;
                 }
             }
         }
@@ -152,15 +124,17 @@ namespace Safer {
         e = input [4] ; f = input [5] ; g = input [6] ; h = input [7] ;
 
         size_t  idx = 0 ;
+        auto ltab = tab.getLogTable () ;
+        auto etab = tab.getExpTable () ;
         for (size_t r = 0 ; r < key.RoundCount () ; ++r) {
-            a = tab.Exp (a ^ key [idx + 0]) + key [idx +  8] ;
-            b = tab.Log (b + key [idx + 1]) ^ key [idx +  9] ;
-            c = tab.Log (c + key [idx + 2]) ^ key [idx + 10] ;
-            d = tab.Exp (d ^ key [idx + 3]) + key [idx + 11] ;
-            e = tab.Exp (e ^ key [idx + 4]) + key [idx + 12] ;
-            f = tab.Log (f + key [idx + 5]) ^ key [idx + 13] ;
-            g = tab.Log (g + key [idx + 6]) ^ key [idx + 14] ;
-            h = tab.Exp (h ^ key [idx + 7]) + key [idx + 15] ;
+            a = etab [(a ^ key [idx + 0]) & 0xFFu] + key [idx +  8] ;
+            b = ltab [(b + key [idx + 1]) & 0xFFu] ^ key [idx +  9] ;
+            c = ltab [(c + key [idx + 2]) & 0xFFu] ^ key [idx + 10] ;
+            d = etab [(d ^ key [idx + 3]) & 0xFFu] + key [idx + 11] ;
+            e = etab [(e ^ key [idx + 4]) & 0xFFu] + key [idx + 12] ;
+            f = ltab [(f + key [idx + 5]) & 0xFFu] ^ key [idx + 13] ;
+            g = ltab [(g + key [idx + 6]) & 0xFFu] ^ key [idx + 14] ;
+            h = etab [(h ^ key [idx + 7]) & 0xFFu] + key [idx + 15] ;
 
             pht (a, b) ; pht (c, d) ; pht (e, f) ; pht (g, h) ;
             pht (a, c) ; pht (e, g) ; pht (b, d) ; pht (f, h) ;
@@ -194,6 +168,8 @@ namespace Safer {
         a = input [0] ^ key [idx - 7] ;
         idx -= 8 ;
 
+        auto etab = tab.getExpTable () ;
+        auto ltab = tab.getLogTable () ;
         for (size_t r = 0 ; r < key.RoundCount () ; ++r) {
             uint8_t   tmp ;
             tmp = e ; e = b ; b = c ; c = tmp ;
@@ -201,14 +177,14 @@ namespace Safer {
             ipht (a, e) ; ipht (b, f) ; ipht (c, g) ; ipht (d, h) ;
             ipht (a, c) ; ipht (e, g) ; ipht (b, d) ; ipht (f, h) ;
             ipht (a, b) ; ipht (c, d) ; ipht (e, f) ; ipht (g, h) ;
-            h = tab.Log (h - key [idx - 0]) ^ key [idx -  8] ;
-            g = tab.Exp (g ^ key [idx - 1]) - key [idx -  9] ;
-            f = tab.Exp (f ^ key [idx - 2]) - key [idx - 10] ;
-            e = tab.Log (e - key [idx - 3]) ^ key [idx - 11] ;
-            d = tab.Log (d - key [idx - 4]) ^ key [idx - 12] ;
-            c = tab.Exp (c ^ key [idx - 5]) - key [idx - 13] ;
-            b = tab.Exp (b ^ key [idx - 6]) - key [idx - 14] ;
-            a = tab.Log (a - key [idx - 7]) ^ key [idx - 15] ;
+            h = ltab [(h - key [idx - 0]) & 0xFFu] ^ key [idx -  8] ;
+            g = etab [(g ^ key [idx - 1]) & 0xFFu] - key [idx -  9] ;
+            f = etab [(f ^ key [idx - 2]) & 0xFFu] - key [idx - 10] ;
+            e = ltab [(e - key [idx - 3]) & 0xFFu] ^ key [idx - 11] ;
+            d = ltab [(d - key [idx - 4]) & 0xFFu] ^ key [idx - 12] ;
+            c = etab [(c ^ key [idx - 5]) & 0xFFu] - key [idx - 13] ;
+            b = etab [(b ^ key [idx - 6]) & 0xFFu] - key [idx - 14] ;
+            a = ltab [(a - key [idx - 7]) & 0xFFu] ^ key [idx - 15] ;
             idx -= 16 ;
         }
         output [0] = a ; output [1] = b ; output [2] = c ; output [3] = d ;
