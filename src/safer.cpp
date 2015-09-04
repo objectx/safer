@@ -11,6 +11,10 @@
 #include <algorithm>
 #include "safer.hpp"
 
+#ifdef HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
 #define NUM_ELEMENTS(X_)        (sizeof (X_) / sizeof (*(X_)))
 
 ////////////////////////////////////////////////////////////////////////

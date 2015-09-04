@@ -1,0 +1,13 @@
+/*
+ * config.h: Configurations
+ *
+ * Copyright (c) 2015 Masashi Fujita
+ */
+#pragma once
+
+#cmakedefine    TARGET_LITTLE_ENDIAN
+#cmakedefine    TARGET_ALLOWS_UNALIGNED_ACCESS
+#cmakedefine    HAVE_SSE3
+/*
+ * [END of FILE]
+ */
