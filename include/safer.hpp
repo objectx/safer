@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cassert>
 #include <cstdint>
+#include <array>
 
 namespace Safer {
     size_t      const MAX_NUM_ROUNDS = 13 ;
@@ -26,8 +27,8 @@ namespace Safer {
      */
     class Table {
     private:
-        uint8_t log_ [256] ;
-        uint8_t exp_ [256] ;
+        std::array<uint8_t, 256>    log_ ;
+        std::array<uint8_t, 256>    exp_ ;
     public:
         Table () ;
         uint8_t   Exp (size_t idx) const {
