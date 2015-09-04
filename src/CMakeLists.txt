@@ -1,7 +1,7 @@
 
 cmake_minimum_required (VERSION 3.3)
 
-set (SOURCE_FILES safer.cpp)
+set (SOURCE_FILES safer.cpp table.cpp)
 
 set (TARGET_NAME "safer")
 add_library (${TARGET_NAME} ${SOURCE_FILES})
