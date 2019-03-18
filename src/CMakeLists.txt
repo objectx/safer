@@ -1,7 +1,7 @@
 
-cmake_minimum_required (VERSION 3.3)
+cmake_minimum_required (VERSION 3.14)
 
-if (NOT ${CMAKE_CROSSCOMPILING})
+if (NOT CMAKE_CROSSCOMPILING)
     include (TestBigEndian)
     include (CheckCXXSourceRuns)
     include (CheckCXXCompilerFlag)
@@ -25,16 +25,14 @@ if (NOT ${CMAKE_CROSSCOMPILING})
     else ()
         CHECK_CXX_COMPILER_FLAG ("-msse3" HAVE_SSE3)
     endif ()
-    add_definitions ("-DHAVE_CONFIG_H")
+    target_compile_definitions (${PROJECT_NAME} PRIVATE HAVE_CONFIG_H=1)
 endif ()
 
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/config.h @ONLY)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+                ${CMAKE_CURRENT_BINARY_DIR}/include/config.h @ONLY)
 
-set (SOURCE_FILES safer.cpp table.cpp)
+target_sources (${PROJECT_NAME} PRIVATE safer.cpp table.cpp)
 
-set (TARGET_NAME "safer")
-add_library (${TARGET_NAME} ${SOURCE_FILES})
-    target_include_directories (${TARGET_NAME}
-        PUBLIC ${SAFER_SOURCE_DIR}/include
-        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include)
-    target_compile_features (${TARGET_NAME} PRIVATE cxx_auto_type cxx_delegating_constructors)
+target_include_directories (${PROJECT_NAME}
+                            PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_compile_features (${PROJECT_NAME} PUBLIC cxx_std_14)

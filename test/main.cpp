@@ -1,10 +1,3 @@
-/*
- * main.cxx:
- *
- * Author(s): objectx
- *
- * $Id: main.cxx 2583 2007-11-23 09:19:30Z objectx $
- */
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -12,18 +5,18 @@
 #include "safer.hpp"
 
 #define CATCH_CONFIG_MAIN
-#include <catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 namespace {
     bool        Equals (Safer::block_t &b0, const Safer::block_t &b1) {
-        return (b0 [0] == b1 [0] &&
-                b0 [1] == b1 [1] &&
-                b0 [2] == b1 [2] &&
-                b0 [3] == b1 [3] &&
-                b0 [4] == b1 [4] &&
-                b0 [5] == b1 [5] &&
-                b0 [6] == b1 [6] &&
-                b0 [7] == b1 [7]) ;
+        return (  b0 [0] == b1 [0]
+               && b0 [1] == b1 [1]
+               && b0 [2] == b1 [2]
+               && b0 [3] == b1 [3]
+               && b0 [4] == b1 [4]
+               && b0 [5] == b1 [5]
+               && b0 [6] == b1 [6]
+               && b0 [7] == b1 [7]) ;
     }
 }
 
@@ -114,7 +107,3 @@ TEST_CASE ("Test: SK128", "[sk128]") {
         }
     }
 }
-
-/*
- * [END of FILE]
- */

@@ -58,7 +58,7 @@ namespace Safer {
          * @param key_size Key length
          * @nRounds # of rounds
          */
-        Key (const Table &tab, const void *key, size_t key_size, size_t nRounds) ;
+        Key (const Table &tab, const void *key, size_t key_size, size_t nRounds) noexcept ;
         /**
          * Construct expanded key from KEY [0..KEY_SIZE - 1].
          *
@@ -66,7 +66,7 @@ namespace Safer {
          * @param key Original key
          * @param key_size Key length
          */
-        Key (const Table &tab, const void *key, size_t key_size)
+        Key (const Table &tab, const void *key, size_t key_size) noexcept
             : Key (tab, key, key_size,
                    (key_size <= sizeof (block_t)
                         ? SK64_DEFAULT_NUM_ROUNDS
@@ -79,13 +79,13 @@ namespace Safer {
          *
          * @param src
          */
-        Key (const Key &src) ;
+        Key (const Key &src) noexcept ;
         /**
          * The Assignment Operator.
          *
          * @Param Src
          */
-        Key &   Assign (const Key &src) ;
+        Key &   Assign (const Key &src) noexcept ;
         /**
          * The Assignment Operator.
          *
@@ -107,7 +107,7 @@ namespace Safer {
             return nRounds_ ;
         }
     private:
-        void    Initialize (const Table &tab, const block_t &key1, const block_t &key2) ;
+        void    Initialize (const Table &tab, const block_t &key1, const block_t &key2) noexcept ;
     } ;
 
     /**
@@ -118,7 +118,7 @@ namespace Safer {
      * @param tab pre-computed values for encryption
      * @param key expanded key
      */
-    extern void EncryptBlock (block_t &output, const block_t &input, const Table &tab, const Key &key) ;
+    extern void EncryptBlock (block_t &output, const block_t &input, const Table &tab, const Key &key) noexcept ;
 
     /**
      * The decryptor (output == input was allowed).
@@ -128,11 +128,8 @@ namespace Safer {
      * @param tab pre-computed values for encryption
      * @param key expanded key
      */
-    extern void DecryptBlock (block_t &output, const block_t &input, const Table &tab, const Key &key) ;
+    extern void DecryptBlock (block_t &output, const block_t &input, const Table &tab, const Key &key) noexcept ;
 
 }   /* end of namespace Safer */
 
 #endif  /* safer_h__62b549ba_ae63_488a_bd69_a3bc55c00926 */
-/*
- * [END of FILE]
- */
