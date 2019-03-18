@@ -1,12 +1,7 @@
 
-cmake_minimum_required (VERSION 3.3)
+cmake_minimum_required (VERSION 3.14)
 
-set (SOURCE_FILES main.cpp)
+find_package (Catch2 REQUIRED)
 
-set (TARGET_NAME test-safer)
-add_executable (${TARGET_NAME} ${SOURCE_FILES})
-    target_include_directories (${TARGET_NAME}
-        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include
-                ${SAFER_SOURCE_DIR}/include
-                ${CMAKE_BINARY_DIR}/include)
-    target_link_libraries (${TARGET_NAME} PRIVATE safer cppformat)
+add_executable (test-${PROJECT_NAME} main.cpp)
+target_link_libraries (test-${PROJECT_NAME} PRIVATE safer Catch2::Catch2)
