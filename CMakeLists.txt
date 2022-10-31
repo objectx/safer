@@ -20,7 +20,6 @@ add_library (${sanitizers_} INTERFACE)
 target_compile_options (${sanitizers_} INTERFACE "-fsanitize=address,undefined")
 target_link_options (${sanitizers_} INTERFACE "-fsanitize=address,undefined")
 
-
 add_library (${PROJECT_NAME} STATIC)
 target_include_directories (${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries (${PROJECT_NAME} PUBLIC ${sanitizers_})

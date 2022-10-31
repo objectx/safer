@@ -35,4 +35,4 @@ target_sources (${PROJECT_NAME} PRIVATE safer.cpp table.cpp)
 
 target_include_directories (${PROJECT_NAME}
                             PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include)
-target_compile_features (${PROJECT_NAME} PUBLIC cxx_std_14)
+target_compile_features (${PROJECT_NAME} PUBLIC cxx_std_17)
