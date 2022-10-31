@@ -4,8 +4,7 @@
 #include <string>
 #include "safer.hpp"
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 namespace {
     bool        Equals (Safer::block_t &b0, const Safer::block_t &b1) {

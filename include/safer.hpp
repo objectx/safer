@@ -6,8 +6,6 @@
  */
 /* NOTE: Only SAFER-SK64 and SAFER-SK128 was implemented... */
 #pragma once
-#ifndef safer_h__62b549ba_ae63_488a_bd69_a3bc55c00926
-#define safer_h__62b549ba_ae63_488a_bd69_a3bc55c00926   1
 
 #include <cstddef>
 #include <cassert>
@@ -132,4 +130,3 @@ namespace Safer {
 
 }   /* end of namespace Safer */
 
-#endif  /* safer_h__62b549ba_ae63_488a_bd69_a3bc55c00926 */
